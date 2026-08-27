@@ -54,7 +54,7 @@ dsh plugin --profile web add github:yuan-source-666/dsh-research-autoresearch
 
 # or from a prebuilt tarball (no build approval needed)
 npm run build && npm pack
-dsh plugin --profile web add ./dsh-research-autoresearch-0.2.5.tgz
+dsh plugin --profile web add ./dsh-research-autoresearch-0.3.1.tgz
 ```
 
 Then the bundle appears in your profile's `dsh.profile.bundles`. Disable any time via `cordis.patch.yml`:
