@@ -1,0 +1,19 @@
+# dsh-research-autoresearch bundle patch: registers the AutoResearch suite.
+# Master switch config.enabled hides the whole suite without a restart-free
+# uninstall; the *Cards flags declaratively inject each tool's progress cards
+# (set false to ship silent tools); defaultCards seeds the research-ui runtime
+# master. At runtime the agent or user can flip any feature live through the
+# research_ui_switch tool. Entry-level disable (Cordis native): add
+#   disabled: true
+# to this entry in the profile's own cordis.patch.yml overlay.
+- insert:
+    - id: dsh-research-autoresearch
+      name: dsh-research-autoresearch
+      config:
+        enabled: true
+        defaultCards: false
+        literatureCards: true
+        scoringCards: true
+        panelCards: true
+        guardianCards: true
+        reviewCards: true
