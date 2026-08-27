@@ -27,6 +27,14 @@ This plugin operationalizes Deli Chen's AutoResearch framework:
 - Strict `tsconfig.client.json` typechecks the browser half with zero `@types` dependencies (ambient shims only).
 - `tests/`: host smoke (mount, settings sync, lossless-JSON registry gate, boot-order contract) + vm-sandbox client replay that emulates the cordis inject gate.
 
+## v0.3.0 literature-driven upgrades (2026-07)
+
+The plugin ran its own Recall->Score funnel over 67 frontier papers (2024-09..2026-08) to audit itself. Two evidence-backed defects fixed:
+
+1. **lit_score citation-window correction** - a batch of 22 fresh 2026 papers was 100% dropped purely because citation counts had not accrued yet (<400-day papers now impute the citation component with the mean of the other components, flagged via `citationEmergingImputed`). Backtest: 22 dropped -> 16 conditional + 6 legitimately dropped.
+2. **peer_review judge-uncertainty band** - following the 2025-2026 LLM-as-a-judge literature (bias/uncertainty estimation, conformal rankings, reviewer-vulnerability studies): new `judgeDisagreement` (spread) and `scoreBand` (median +/- 1.4826 MAD, the robust scale-consistent band). A polarized panel (spread >= 4) auto-tags `judge_disagreement` and can no longer reach `accept` before convergence.
+3. **Self-contained build** - all six tool sources are vendored into `src/`; `prepare` no longer touches paths outside the package (publish.zh.md red line), so git installs build standalone.
+
 ## Verification results
 
 | Layer | Result |
