@@ -131,6 +131,45 @@ ok(!('previousScore' in prOut), 'review without previous omits key')
 const meta = JSON.parse(JSON.stringify(tools.registered.get('research_state').output.presentationMeta(rd, sv)))
 ok(meta.ui && meta.ui.cards === true, 'result-card gate stamped into presentationMeta')
 
+// ── v0.4.0 orchestration layer: runtime autoresearch skill ──
+{
+  class FakeSkills extends Service {
+    constructor(c) { super(c, 'skills'); this.registered = new Map() }
+    register(s) { this.registered.set(s.name, s); return () => {} }
+  }
+  const mkCtx = () => {
+    const c = {
+      fiber: { state: 1 }, __services: new Map(),
+      reflect: { provide(name, svc) { c[name] = svc; c.__services.set(name, svc); return () => {} } },
+      get(n) { return c.__services.get(n) },
+      plugin(P) { const inst = new P(c); return { instance: inst } },
+      effect(fn) { return typeof fn === 'function' ? fn() : undefined },
+      inject(deps, cb) { if (deps.every((d) => c.__services.has(d))) cb(c) },
+    }
+    // Services install themselves on the context via reflect.provide; never
+    // assign ctx.tools/ctx.skills by hand (Service defines those as getters).
+    c.plugin(FakeTools)
+    c.plugin(FakeSystemPrompt)
+    c.plugin(FakeSettings)
+    c.plugin(FakeSkills)
+    return c
+  }
+  const c1 = mkCtx()
+  bundle.apply(c1, { enabled: true, defaultCards: true })
+  const sk = c1.skills.registered.get('autoresearch')
+  ok(sk && sk.name === 'autoresearch' && sk.content.includes('文献漏斗') && sk.content.includes('MEDIAN'),
+    'runtime skill "autoresearch" registered with full protocol body')
+  ok(sk && /trigger|Trigger/.test(sk.description) && sk.description.includes('peer review'),
+    'skill description carries bilingual routing triggers')
+  ok(sk && sk.source === 'runtime', 'skill registered in the runtime provider lane')
+  const c2 = mkCtx()
+  bundle.apply(c2, { enabled: false })
+  ok(c2.skills.registered.size === 0 && c2.tools.registered.size === 0,
+    'enabled:false registers neither the skill nor the tools')
+  ok(tools.registered.size === 6,
+    'primary mount WITHOUT a skills service still booted 6 tools (optional lookup = no brick)')
+}
+
 await fs.rm(dir, { recursive: true, force: true })
 console.log('smoke-test: ' + pass + ' passed, ' + fail + ' failed')
 process.exitCode = fail === 0 ? 0 : 1
