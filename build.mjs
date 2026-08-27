@@ -22,6 +22,7 @@ const OUT = {
   'research-state.js': join(root, 'src', 'research-state.ts'),
   'stall-check.js': join(root, 'src', 'stall-check.ts'),
   'peer-review.js': join(root, 'src', 'peer-review.ts'),
+  'skill.js': join(root, 'src', 'skill.ts'),
 }
 await mkdir(join(root, 'lib'), { recursive: true })
 for (const [out, src] of Object.entries(OUT)) {
