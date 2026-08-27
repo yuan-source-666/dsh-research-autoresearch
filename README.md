@@ -50,11 +50,19 @@ tests/client-smoke.mjs         浏览器半回放（vm 沙箱跑完整 loader �
   - `stall_check` 的 "**pivot structure, not tactics**"（结构转向而非战术调参）与 15 轮 / 30 分钟双上限。
 - **协议全文**：[AutoResearch Framework Protocol（SKILL.md）](https://victorchen96.github.io/auto_research/framework.html) —— 五工具的状态文件、LQS 权重、五人格评审、行为约束（零交互 / ready-means-execute）逐条来自该协议。
 
+## v0.3.0 文献驱动升级（2026-07）
+
+用本插件自己的 Recall→Score 漏斗对 2024-09 ~ 2026-08 前沿文献（67 篇召回 / LQS 分桶）做了自省研究，两处实证缺陷已修复：
+
+1. **lit_score · 引用窗口校正**：实测一批 22 篇 2026 前沿论文因 citation=0 全部被 dropped——新论文尚没时间积累引用，25% 引用权重系统性错杀最新文献。现在 <400 天论文按缺失指标标准处理：引用分量用其余分量均值插补，并以 `citationEmergingImputed` 字段透明标记（不失真、可审计）。回测：同批 22 篇 **22 dropped → 16 conditional + 6 合理淘汰**。参考做法：Citation-Constellation (cs.DL 2026)、缺失指标均值插补惯例。
+2. **peer_review · 评审不确定性带**：2025-2026 LLM-as-a-judge 文献（*Bias and Uncertainty in LLM-as-a-Judge Estimation*、*Noisy but Valid*、Conformal Elo、*Breaking the Reviewer*）一致指出：点估计中位数过度自信、极化评审团可被攻破。新增 `judgeDisagreement`（极差）与 `scoreBand`（中位数 ± 1.4826×MAD 稳健区间，与中位数同族）；分歧 ≥4 自动打 `judge_disagreement` 弱点标签，且**极化的高分面板不能再直接 accept**（强制先收敛）。
+3. **构建自含化**（发布规范修复）：6 个工具源码 vendor 进包内 `src/`，`prepare` 不再触碰包外路径——git 安装方可独立构建（publish.zh.md 的 self-contained 红线）。
+
 ## 测试成果
 
 | 验证层 | 结果 |
 |---|---|
-| 宿主半冒烟（挂载 / 设置同步 / lossless 注册表门 / inject 契约） | **11/11** |
+| 宿主半冒烟（挂载 / 设置同步 / lossless 注册表门 / inject 契约 + 0.3.0 分歧门与插补回归） | **11 项含 2 条 0.3.0 新断言** |
 | 浏览器半回放（vm 沙箱 + cordis 属性门模拟 + 暂存/保存链路） | **9/9** |
 | 安装态稳定性探针（真实 profile 内直接执行 6 工具 + 输入卫生 + 重复循环） | **16/16** |
 | 冷启动稳定性（隔离 DSH_HOME 连续三次 `dsh web`） | **3/3**（HTTP 200 + boot graph，3–7s，插件树零错误） |
