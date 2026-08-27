@@ -1,6 +1,6 @@
 {
   "name": "dsh-research-autoresearch",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "AutoResearch suite for DeepSeek Harness: arxiv recall, LQS scoring, research state panel, stall guardian, five-persona peer review, plus the research-ui visualization feature-switch control plane.",
   "type": "module",
   "main": "lib/index.js",
@@ -62,5 +62,19 @@
   "bugs": {
     "url": "https://github.com/yuan-source-666/dsh-research-autoresearch/issues"
   },
-  "homepage": "https://github.com/yuan-source-666/dsh-research-autoresearch#readme"
+  "homepage": "https://github.com/yuan-source-666/dsh-research-autoresearch#readme",
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-settings": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    },
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    }
+  }
 }
