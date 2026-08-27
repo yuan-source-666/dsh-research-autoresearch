@@ -74,7 +74,7 @@ tests/client-smoke.mjs         浏览器半回放（vm 沙箱跑完整 loader �
 
 ## 安装
 
-方式一（社区规范 · git 安装，需授权一次 prepare 构建）：
+方式一（社区规范 · git 安装，需授权一次 prepare 构建；pnpm 的 allowBuilds 键绑 commit hash，上游推新 commit 后按提示更新一次）：
 
 ```bash
 dsh plugin --profile web add github:<your-github-user>/dsh-research-autoresearch
@@ -84,7 +84,7 @@ dsh plugin --profile web add github:<your-github-user>/dsh-research-autoresearch
 
 ```bash
 npm run build && npm pack
-dsh plugin --profile web add ./dsh-research-autoresearch-0.2.5.tgz
+dsh plugin --profile web add ./dsh-research-autoresearch-0.3.1.tgz
 ```
 
 安装后在 profile 的 `cordis.patch.yml` 加 `- id: dsh-research-autoresearch` + `disabled: true` 可整体停用；Web 设置页「插件配置」的 **科研可视化总控台** 卡片可运行时切换五路可视化（zh/en 双语界面）。
