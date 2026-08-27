@@ -50,6 +50,14 @@ tests/client-smoke.mjs         浏览器半回放（vm 沙箱跑完整 loader �
   - `stall_check` 的 "**pivot structure, not tactics**"（结构转向而非战术调参）与 15 轮 / 30 分钟双上限。
 - **协议全文**：[AutoResearch Framework Protocol（SKILL.md）](https://victorchen96.github.io/auto_research/framework.html) —— 五工具的状态文件、LQS 权重、五人格评审、行为约束（零交互 / ready-means-execute）逐条来自该协议。
 
+## v0.4.0 编排层补全（诊断驱动）
+
+发布后取证（解压宿主全部 83 个会话日志）发现：**六个工具被调用了 0 次**——插件"装着但没生效"。根因：AutoResearch 框架的原生形态是 **SKILL.md 协议（编排层）+ 工具（执行层）** 两件套，本包此前只有后者；模型对被动工具描述的自发调用率≈0。修复：
+
+1. **注册 `autoresearch` runtime skill**（官方 `ctx.skills` 通道）：技能目录里带上中英触发描述，研究会话加载后即注入完整协议——任务目录约定、迭代循环、文献漏斗、五人格评审循环、stall 行动语义。skill 目录每会话只占 name+description 两个字段，正文按需加载（对 token 成本近乎零）。
+2. **注册走 `ctx.get('skills')` 可选查找而非 inject**：skills 子系统缺席的 profile 依旧完整启动六工具（断言已锁进 smoke，本项目的 brick 教训不允许第二次）。
+3. **五路可视化卡片默认改为开启**（原先全 false = 效果不可见是"没发挥作用"的放大器）；`enabled:false`、设置页总控台、`research_ui_switch` 三档退出路径不变。
+
 ## v0.3.0 文献驱动升级（2026-07）
 
 用本插件自己的 Recall→Score 漏斗对 2024-09 ~ 2026-08 前沿文献（67 篇召回 / LQS 分桶）做了自省研究，两处实证缺陷已修复：
