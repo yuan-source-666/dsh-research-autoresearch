@@ -1,6 +1,6 @@
 {
   "name": "dsh-research-autoresearch",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "AutoResearch suite for DeepSeek Harness: arxiv recall, LQS scoring, research state panel, stall guardian, five-persona peer review, plus the research-ui visualization feature-switch control plane.",
   "type": "module",
   "main": "lib/index.js",
