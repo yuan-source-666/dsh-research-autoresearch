@@ -104,7 +104,7 @@ export interface Config {
 }
 
 export const Config: z<Config> = z.object({
-  defaultCards: z.boolean().default(false),
+  defaultCards: z.boolean().default(true),
   literatureCards: z.boolean().default(false),
   scoringCards: z.boolean().default(false),
   panelCards: z.boolean().default(false),
