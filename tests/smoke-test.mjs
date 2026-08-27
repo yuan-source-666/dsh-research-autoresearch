@@ -66,6 +66,38 @@ ok(Array.isArray(bundle.inject) && bundle.inject.includes('tools'), "boot-order 
 // shadow the named inject and brick the boot (this exact bug shipped twice).
 ok(bundle.default === undefined, 'entry has NO default export (would shadow inject in unwrapExports)')
 ok([...tools.registered.keys()].sort().join(',') === 'arxiv_search,lit_score,peer_review,research_state,research_ui_switch,stall_check', '6 tools registered')
+// 0.3.0 literature-driven upgrades: judge disagreement gate + emerging citation imputation
+{
+  const exU = (n, a) => ({ callId: 'u', name: n, arguments: a, agent: null, token: 0, signal: new AbortController().signal })
+  const v5 = [9, 2, 3, 4, 9].map((score, i) => ({ personaId: 'p' + i, role: 'r', score, critique: 'x' }))
+  const polar = await tools.registered.get('peer_review').execute({ verdicts: v5 }, exU('peer_review', {}))
+  if (polar.judgeDisagreement !== 7) throw new Error('disagreement spread wrong: ' + polar.judgeDisagreement)
+  if (!(polar.scoreBand[0] <= polar.medianScore && polar.medianScore <= polar.scoreBand[1])) throw new Error('band must contain median')
+  if (!polar.weaknessTags.includes('judge_disagreement')) throw new Error('polarized panel must auto-tag judge_disagreement')
+  const calm = await tools.registered.get('peer_review').execute(
+    { verdicts: [9, 9, 8, 9, 9].map((score, i) => ({ personaId: 'p' + i, role: 'r', score, critique: 'x' })) }, exU('peer_review', {}))
+  if (calm.nextAction !== 'accept') throw new Error('converged strong panel should accept, got ' + calm.nextAction)
+  const strong = await tools.registered.get('peer_review').execute(
+    { verdicts: [10, 10, 9, 6, 10].map((score, i) => ({ personaId: 'p' + i, role: 'r', score, critique: 'x' })) }, exU('peer_review', {}))
+  if (strong.medianScore >= 8.5 && strong.nextAction === 'accept') throw new Error('polarized 8.5+ panel must NOT accept')
+  console.log('  PASS  peer_review 0.3.0: disagreement gate + robust band')
+  // emerging imputation: mock S2 with 0 citations, fresh paper must not be dropped
+  const realFetch = globalThis.fetch
+  globalThis.fetch = (async () => ({ ok: true, json: async () => ({ citationCount: 0 }) }))
+  try {
+    const fresh = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10) + 'T00:00:00Z'
+    const old = '2024-03-01T00:00:00Z'
+    const mk = (id, published) => ({ arxivId: id, title: 't', authors: ['A. Author'], primaryCategory: 'cs.LG', published, url: 'u' })
+    const scored = await tools.registered.get('lit_score').execute(
+      { results: [mk('9999.00001', fresh), mk('9999.00002', old)] }, exU('lit_score', {}))
+    const e1 = scored.entries.find((e) => e.citationEmergingImputed)
+    const e2 = scored.entries.find((e) => !e.citationEmergingImputed)
+    if (!e1 || e1.citationCount !== 0) throw new Error('emerging entry mislabeled')
+    if (!e2 || e2.citation !== 0) throw new Error('old paper should keep raw zero-citation score')
+    if (e1.tier === 'dropped') throw new Error('emerging imputation failed to rescue fresh paper: lqs=' + e1.lqs)
+    console.log('  PASS  lit_score 0.3.0: citation-window correction (emerging lqs=' + e1.lqs.toFixed(2) + ' vs old ' + e2.lqs.toFixed(2) + ')')
+  } finally { globalThis.fetch = realFetch }
+}
 const ui = ctx.researchUi
 ok(!!ui, 'researchUi service live')
 
