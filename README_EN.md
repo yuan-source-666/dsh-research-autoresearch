@@ -27,6 +27,14 @@ This plugin operationalizes Deli Chen's AutoResearch framework:
 - Strict `tsconfig.client.json` typechecks the browser half with zero `@types` dependencies (ambient shims only).
 - `tests/`: host smoke (mount, settings sync, lossless-JSON registry gate, boot-order contract) + vm-sandbox client replay that emulates the cordis inject gate.
 
+## v0.4.0 the orchestration layer (diagnosis-driven)
+
+Post-release forensics (all 83 host session logs decompressed) showed **zero tool invocations** - installed but inert. Root cause: the AutoResearch framework natively ships as a pair - a SKILL.md protocol (orchestration) plus tools (mechanics) - and this package only had the mechanics. Passive tool descriptions get near-zero spontaneous uptake. Fixes:
+
+1. Registers an `autoresearch` **runtime skill** through the official `ctx.skills` seam: bilingual trigger description in the model-facing catalog; the full loop (task-dir conventions, iteration protocol, literature funnel, five-persona review cycle, stall semantics) loads on demand.
+2. The registration uses an optional `ctx.get('skills')` lookup - never the inject gate - so profiles without the skills subsystem boot the six tools exactly as before (asserted in smoke, brick-proofed).
+3. All five visualization streams now **default ON**; the three opt-out layers are unchanged.
+
 ## v0.3.0 literature-driven upgrades (2026-07)
 
 The plugin ran its own Recall->Score funnel over 67 frontier papers (2024-09..2026-08) to audit itself. Two evidence-backed defects fixed:
