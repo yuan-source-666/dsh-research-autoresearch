@@ -1,0 +1,66 @@
+{
+  "name": "dsh-research-autoresearch",
+  "version": "0.2.5",
+  "description": "AutoResearch suite for DeepSeek Harness: arxiv recall, LQS scoring, research state panel, stall guardian, five-persona peer review, plus the research-ui visualization feature-switch control plane.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./client": "./lib/client.js"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README_EN.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-settings-plugins"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "prepare": "node build.mjs",
+    "typecheck:client": "tsc -p tsconfig.client.json",
+    "test": "node tests/smoke-test.mjs && node tests/client-smoke.mjs"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "dsh-bundle",
+    "deepseek-harness",
+    "research",
+    "autoresearch",
+    "ui",
+    "feature-switch"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=0.1.0",
+    "@deepseek-ai/dsh-settings": ">=0.1.0",
+    "@deepseek-ai/dsh-tools": ">=0.1.0",
+    "@deepseek-ai/schemastery": ">=0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  },
+  "author": "yuan-source-666",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuan-source-666/dsh-research-autoresearch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yuan-source-666/dsh-research-autoresearch/issues"
+  },
+  "homepage": "https://github.com/yuan-source-666/dsh-research-autoresearch#readme"
+}
