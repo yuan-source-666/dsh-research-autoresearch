@@ -1,0 +1,63 @@
+# dsh-research-autoresearch
+
+A DeepSeek Harness bundle plugin implementing the six stages of the **AutoResearch** protocol as agent tools, plus a live Web settings card for its visualization layer.
+
+[中文 README](./README.md)
+
+| Tool | Stage |
+|---|---|
+| `arxiv_search` | Literature recall — keyword fan-out against the arXiv API, dedup by id |
+| `lit_score` | LQS scoring — recency 30 / citations 25 / venue 20 / institution 10 / acceptance 15, bucketed into must-cite / conditional / dropped (Semantic Scholar live counts) |
+| `research_state` | The five durable state files (spec, progress, findings, directions, iteration log) behind one read/write boundary |
+| `stall_check` | Stall traffic-light: stale count, pivot/escalate/cap recommendations, "pivot structure, not tactics" |
+| `peer_review` | Five-persona review protocol — MEDIAN (never mean), binding constraint, honest downward-revision signal |
+| `research_ui_switch` | Runtime master console for all five progress-card streams |
+
+## Design inspiration
+
+This plugin operationalizes Deli Chen's AutoResearch framework:
+
+- **Inspiration paper / case study**: Deli Chen, *"From Draft to Strong-Accept: How a Self-Play Survey Hit 8.6"* ([blog_self_play_story.html](https://victorchen96.github.io/blog_self_play_story.html)). Its 16-round review history shaped three core mechanics here: the median-not-mean scoreboard (a single enthusiastic reviewer cannot inflate it), the honest downward-revision signal (round V12: the framework cut its own 8.5 to 8.2 after external citation checks), and stall's structural-pivot rule with 15-round / 30-minute caps.
+- **Protocol**: [AutoResearch Framework Protocol (SKILL.md)](https://victorchen96.github.io/auto_research/framework.html).
+
+## Engineering shape (mirrors dsh-github-manager)
+
+- `src/bundle.ts` — host half: pure named exports only (`name`, `inject: ['tools']`, `Config`, `apply`). **Never add a default export**: the loader unwraps `exports.default ?? exports`, and a default would shadow the inject declaration and brick profile boot.
+- `src/client/` — browser half: TypeScript sources compiled by `scripts/build-client.mjs` into a lazy-CJS `__ModuleLoader__` envelope (`lib/client.js`, generated — do not hand-edit). Declares its own module-level `inject = ['locale', 'settingsScope', 'slots']` for the browser-side cordis property gate.
+- Strict `tsconfig.client.json` typechecks the browser half with zero `@types` dependencies (ambient shims only).
+- `tests/`: host smoke (mount, settings sync, lossless-JSON registry gate, boot-order contract) + vm-sandbox client replay that emulates the cordis inject gate.
+
+## Verification results
+
+| Layer | Result |
+|---|---|
+| Host smoke tests | 11/11 |
+| Browser replay (gated) | 9/9 |
+| Installed-package stability probe | 16/16 (incl. live arXiv/Semantic Scholar round-trips) |
+| Cold-boot stability, isolated DSH_HOME x3 | 3/3 HTTP 200, plugin tree clean |
+| `tsc --noEmit` (strict) | 0 diagnostics |
+| End-to-end research simulation harness | 133/133 |
+
+## Install
+
+```bash
+# git install (approve the one-time prepare build as documented)
+dsh plugin --profile web add github:yuan-source-666/dsh-research-autoresearch
+
+# or from a prebuilt tarball (no build approval needed)
+npm run build && npm pack
+dsh plugin --profile web add ./dsh-research-autoresearch-0.2.5.tgz
+```
+
+Then the bundle appears in your profile's `dsh.profile.bundles`. Disable any time via `cordis.patch.yml`:
+
+```yaml
+- id: dsh-research-autoresearch
+  disabled: true
+```
+
+The Web settings page gains a **科研可视化总控台 / Research UI console** card (zh/en) to flip each visualization stream at runtime; changes sync live to the agent-side service.
+
+## License
+
+MIT
