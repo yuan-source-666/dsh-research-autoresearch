@@ -10,15 +10,18 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const root = dirname(fileURLToPath(import.meta.url))
-const research = join(root, '..')
+// Self-contained: every source lives inside this package (src/). The build
+// MUST NOT reach outside the package — git installs run the prepare script in
+// an isolated checkout (publish.zh.md), and the bundle sources are vendored
+// here as the single source of truth for the release.
 const OUT = {
-  'index.js': join(research, 'dsh-research-autoresearch', 'src', 'bundle.ts'),
-  'research-ui.js': join(research, 'tool-research-ui', 'src', 'index.ts'),
-  'arxiv-search.js': join(research, 'tool-arxiv-search', 'src', 'index.ts'),
-  'lit-score.js': join(research, 'tool-lit-score', 'src', 'index.ts'),
-  'research-state.js': join(research, 'tool-research-state', 'src', 'index.ts'),
-  'stall-check.js': join(research, 'tool-stall-check', 'src', 'index.ts'),
-  'peer-review.js': join(research, 'tool-peer-review', 'src', 'index.ts'),
+  'index.js': join(root, 'src', 'bundle.ts'),
+  'research-ui.js': join(root, 'src', 'research-ui.ts'),
+  'arxiv-search.js': join(root, 'src', 'arxiv-search.ts'),
+  'lit-score.js': join(root, 'src', 'lit-score.ts'),
+  'research-state.js': join(root, 'src', 'research-state.ts'),
+  'stall-check.js': join(root, 'src', 'stall-check.ts'),
+  'peer-review.js': join(root, 'src', 'peer-review.ts'),
 }
 await mkdir(join(root, 'lib'), { recursive: true })
 for (const [out, src] of Object.entries(OUT)) {
