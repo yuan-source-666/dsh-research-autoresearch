@@ -15,6 +15,7 @@ import { apply as applyLit } from './lit-score.ts'
 import { apply as applyState } from './research-state.ts'
 import { apply as applyStall } from './stall-check.ts'
 import { apply as applyReview } from './peer-review.ts'
+import { registerResearchSkill } from './skill.ts'
 
 export interface Config {
   /** Master kill-switch for the whole suite. */
@@ -29,14 +30,18 @@ export interface Config {
   reviewCards?: boolean
 }
 
+// v0.4.0: card defaults flipped to ON. Forensics showed the suite suffered
+// from invisible-by-default progress cards on top of the missing orchestration
+// layer; the research-ui settings card and research_ui_switch remain the
+// opt-out path, and enabled=false still unmounts everything.
 export const Config: z<Config> = z.object({
   enabled: z.boolean().default(true),
-  defaultCards: z.boolean().default(false),
-  literatureCards: z.boolean().default(false),
-  scoringCards: z.boolean().default(false),
-  panelCards: z.boolean().default(false),
-  guardianCards: z.boolean().default(false),
-  reviewCards: z.boolean().default(false),
+  defaultCards: z.boolean().default(true),
+  literatureCards: z.boolean().default(true),
+  scoringCards: z.boolean().default(true),
+  panelCards: z.boolean().default(true),
+  guardianCards: z.boolean().default(true),
+  reviewCards: z.boolean().default(true),
 })
 
 export const name = 'dsh-research-autoresearch'
@@ -47,6 +52,10 @@ export const inject = ['tools']
 
 export function apply(ctx: Context, config: Config): void {
   if (!config.enabled) return
+  // Orchestration layer: the AutoResearch protocol as a runtime skill so any
+  // agent in this profile can discover and load the research loop. Optional
+  // service lookup (never inject-gated) — a skills-less host boots unchanged.
+  ctx.effect(() => registerResearchSkill(ctx))
   applyUi(ctx, {
     defaultCards: config.defaultCards,
     literatureCards: config.literatureCards ?? false,
