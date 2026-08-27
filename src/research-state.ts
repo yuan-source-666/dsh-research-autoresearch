@@ -181,7 +181,7 @@ export interface Config {
 }
 
 export const Config: z<Config> = z.object({
-  enableCards: z.boolean().default(false),
+  enableCards: z.boolean().default(true),
 })
 
 /** Structural probe of the optional researchUi service (tutorial ch.3 optional dependency). */
