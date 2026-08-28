@@ -1,3 +1,6 @@
 node_modules/
-lib/
+# lib/ is committed on purpose: DSH git installs get the source tree and run
+# no build step, so a prebuilt lib/ is what makes 'dsh plugin add github:...'
+# work without authorizing a build script.
+*.tsbuildinfo
 *.tgz
